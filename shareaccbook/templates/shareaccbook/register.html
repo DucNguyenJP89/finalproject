@@ -2,18 +2,24 @@
 
 {% block body %}
     <div class="container">
-        <h2>Login</h2>
+        <h2>Register</h2>
 
-        <form action="{% url 'login' %}" method="post">
+        <form action="{% url 'register' %}" method="post">
             {% csrf_token %}
             <div class="form-group">
                 <input autofocus class="form-control" type="text" name="username" placeholder="Input your username">
             </div>
             <div class="form-group">
+                <input autofocus class="form-control" type="email" name="email" placeholder="Input your email">
+            </div>
+            <div class="form-group">
                 <input class="form-control" type="password" name="password" placeholder="Password">
             </div>
             <div class="form-group">
-                <input class="form-control btn btn-primary" type="submit" value="Login">
+                <input class="form-control" type="password" name="confirmation" placeholder="Confirm password">
+            </div>
+            <div class="form-group">
+                <input class="form-control btn btn-primary" type="submit" value="Register">
             </div>
         </form>
 
@@ -22,9 +28,10 @@
         {% endif %}
 
         <p>
-            New here?
-            <a href="{% url 'register' %}">Register here</a>
+            Already have an account?
+            <a href="{% url 'login' %}">Login</a>
         </p>
     </div>
-    
+
+
 {% endblock %}

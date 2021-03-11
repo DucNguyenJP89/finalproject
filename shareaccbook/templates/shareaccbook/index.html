@@ -1,7 +1,15 @@
 {% extends "shareaccbook/layout.html" %}
 
 {% block body %}
-    <div class="container">
-        Login successed!
-    </div>
+    
+    {% if user.is_authenticated %}
+        <div class="container">
+            Login successed!
+        </div>
+    {% else %}
+        <div class="container">
+            Please login/register
+        </div>
+    {% endif %}
+    
 {% endblock %}
