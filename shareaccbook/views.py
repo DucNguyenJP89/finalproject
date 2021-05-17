@@ -4,13 +4,40 @@ from django.db import IntegrityError
 from django.http import JsonResponse, HttpRequest, HttpResponseRedirect
 from django.urls import reverse
 from django.shortcuts import render, HttpResponse, HttpResponseRedirect
+from django.core.exceptions import FieldError
 
-from .models import User, UserAccBook, AccBookItem
+from .models import User, UserAccBook, AccBookItem, SharedUser
 
 # Create your views here.
 
 def index(request):
     return render(request, "shareaccbook/index.html")
+
+@login_required
+def createAccBook(request):
+    if request.method == 'POST':
+        #Get acc book information
+        owner = request.POST["owner"]
+        accbook_type = request.POST["type"]
+        accbook_name = request.POST["accbook_name"]
+
+        #get user from db
+        try:
+            user = User.objects.get(username=owner)
+        except User.DoesNotExist:
+            return render(request, "shareaccbook/createAccBook.html", {
+                "message": "User does not exist. Please try again."
+            })
+        try: 
+            newAccBook = UserAccBook.objects.create(owner=owner, accbook_type=accbook_type, accbook_name=accbook_name)
+            newAccBook.save()
+        except FieldError:
+            return render(request, "user/createAccBook.html", {
+                "message": "Error occured. Please try again."
+            })
+    else:
+        return render(request, "shareaccbook/nopermissionerror.html")
+    return
 
 def login_view(request):
     if request.method == "POST":
