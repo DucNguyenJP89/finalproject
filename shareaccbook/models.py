@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
-import datetime
+from django.utils import timezone
 
 # Create your models here.
 class User(AbstractUser):
@@ -16,11 +16,9 @@ BOOK_TYPE = (
 
 class UserAccBook(models.Model):
     owner = models.OneToOneField("User", on_delete=models.CASCADE, related_name="accbook_creator")
-    view_users = models.ManyToManyField("User", related_name="view_only_users")
-    edit_users = models.ManyToManyField("User", related_name="can_edit_users")
     accbook_type = models.IntegerField(choices=BOOK_TYPE, default=1)
     accbook_name = models.CharField(max_length=50, blank=False)
-    created_on = models.DateField(auto_now_add=True)
+    created_on = models.DateField(default=timezone.now())
     updated_on = models.DateField(auto_now_add=True)
 
     class Meta:
@@ -30,6 +28,19 @@ class UserAccBook(models.Model):
         created_on = self.created_on.strftime("%b %-d %Y, %_I:%M %p")
         return f"{self.accbook_name} created by {self.owner} at {created_on}"
 
+# User access types
+USER_PERMISSIONS = (
+    (0, "No permission"),
+    (1, "Can view"),
+    (2, "Can edit")
+)
+
+class SharedUser(models.Model):
+    acc_book_id = models.ForeignKey("UserAccBook", on_delete=models.CASCADE, related_name="shared_users")
+    user_id = models.ForeignKey("User", on_delete=models.CASCADE)
+    user_permissions = models.IntegerField(choices=USER_PERMISSIONS, default=0)
+
+# Items type
 ITEM_TYPE = (
     ("Housing", (
         (1, "Rent"),
@@ -57,7 +68,8 @@ ITEM_TYPE = (
 
 class AccBookItem(models.Model):
     acc_book_id = models.ForeignKey("UserAccBook", on_delete=models.CASCADE, related_name="belonging_accbook")
-    regist_date = models.DateField(default=datetime.date.today())
+    user_id = models.ForeignKey("User", on_delete=models.CASCADE)
+    regist_date = models.DateField(default=timezone.now())
     modified_date = models.DateField(auto_now_add=True)
     item_type = models.IntegerField(choices=ITEM_TYPE, blank=False)
     item_description = models.CharField(max_length=50)
