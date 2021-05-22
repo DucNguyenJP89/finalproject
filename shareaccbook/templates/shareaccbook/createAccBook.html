@@ -1,0 +1,10 @@
+{% extends "shareaccbook/layout.html" %}
+
+{% block title %}Create new book{% endblock %}
+
+{% block body %}
+<div class="container">
+  {% csrf_token %}
+  {{ form }}
+</div>
+{% endblock %}
