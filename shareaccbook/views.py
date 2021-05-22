@@ -5,8 +5,12 @@ from django.http import JsonResponse, HttpRequest, HttpResponseRedirect
 from django.urls import reverse
 from django.shortcuts import render, HttpResponse, HttpResponseRedirect
 from django.core.exceptions import FieldError
+from django.views.decorators.csrf import csrf_exempt
 
-from .models import User, UserAccBook, AccBookItem, SharedUser
+import json
+
+from .models import *
+
 
 # Create your views here.
 
@@ -15,29 +19,37 @@ def index(request):
 
 @login_required
 def createAccBook(request):
-    if request.method == 'POST':
-        #Get acc book information
-        owner = request.POST["owner"]
-        accbook_type = request.POST["type"]
-        accbook_name = request.POST["accbook_name"]
+    # check request method
+    if request.method == "GET":
+        form = createAccBookForm()
+        return render(request, "shareaccbook/createAccBook.html", {
+            "form": form
+        })
+    elif request.method == "POST":
+        # Get info of acc book
+        data = json.loads(request.body)
+        accbook_type = data.get('book_type')
+        accbook_name = data.get('book_name')
+        owner = User.objects.get(username=request.user)
 
-        #get user from db
+        # try to create new acc book
         try:
-            user = User.objects.get(username=owner)
-        except User.DoesNotExist:
-            return render(request, "shareaccbook/createAccBook.html", {
-                "message": "User does not exist. Please try again."
-            })
-        try: 
-            newAccBook = UserAccBook.objects.create(owner=owner, accbook_type=accbook_type, accbook_name=accbook_name)
-            newAccBook.save()
-        except FieldError:
-            return render(request, "user/createAccBook.html", {
-                "message": "Error occured. Please try again."
+            new_book = UserAccBook.objects.create(owner=owner, accbook_type=accbook_type, accbook_name=accbook_name)
+            new_book.save()
+        except UserAccBook.FieldError:
+            error = "'Account book already existed. Please try another name.'"
+            return JsonResponse({"error": error})
+        
+        return JsonResponse({
+            "message": "Account book created successfully.",
+            "data": {
+                "owner": owner,
+                "accbook_type": accbook_type,
+                "accbook_name": accbook_name
+            }
             })
     else:
-        return render(request, "shareaccbook/nopermissionerror.html")
-    return
+        return JsonResponse({"error": "Invalid request."}, status=400)
 
 def login_view(request):
     if request.method == "POST":

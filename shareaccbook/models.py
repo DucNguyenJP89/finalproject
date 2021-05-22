@@ -1,7 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.forms import ModelForm
 
-from django.utils import timezone
+import datetime
 
 # Create your models here.
 class User(AbstractUser):
@@ -18,8 +19,8 @@ class UserAccBook(models.Model):
     owner = models.OneToOneField("User", on_delete=models.CASCADE, related_name="accbook_creator")
     accbook_type = models.IntegerField(choices=BOOK_TYPE, default=1)
     accbook_name = models.CharField(max_length=50, blank=False)
-    created_on = models.DateField(default=timezone.now())
-    updated_on = models.DateField(auto_now_add=True)
+    created_on = models.DateField(default=datetime.date.today)
+    updated_on = models.DateField(auto_now=True)
 
     class Meta:
         ordering = ['-created_on']
@@ -27,6 +28,11 @@ class UserAccBook(models.Model):
     def __str__(self):
         created_on = self.created_on.strftime("%b %-d %Y, %_I:%M %p")
         return f"{self.accbook_name} created by {self.owner} at {created_on}"
+
+class createAccBookForm(ModelForm):
+    class Meta:
+        model = UserAccBook
+        fields = ['accbook_type', 'accbook_name']
 
 # User access types
 USER_PERMISSIONS = (
@@ -69,8 +75,8 @@ ITEM_TYPE = (
 class AccBookItem(models.Model):
     acc_book_id = models.ForeignKey("UserAccBook", on_delete=models.CASCADE, related_name="belonging_accbook")
     user_id = models.ForeignKey("User", on_delete=models.CASCADE)
-    regist_date = models.DateField(default=timezone.now())
-    modified_date = models.DateField(auto_now_add=True)
+    regist_date = models.DateField(default=datetime.date.today)
+    modified_date = models.DateField(auto_now=True)
     item_type = models.IntegerField(choices=ITEM_TYPE, blank=False)
     item_description = models.CharField(max_length=50)
     item_price = models.DecimalField(max_digits=9, decimal_places=2)
