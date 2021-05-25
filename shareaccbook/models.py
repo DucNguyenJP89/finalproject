@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.forms import ModelForm
+from django.forms import ModelForm, CharField
 
 import datetime
 
@@ -16,7 +16,7 @@ BOOK_TYPE = (
 )
 
 class UserAccBook(models.Model):
-    owner = models.OneToOneField("User", on_delete=models.CASCADE, related_name="accbook_creator")
+    owner = models.ForeignKey("User", on_delete=models.CASCADE, related_name="accbook_creator")
     accbook_type = models.IntegerField(choices=BOOK_TYPE, default=1)
     accbook_name = models.CharField(max_length=50, blank=False)
     created_on = models.DateField(default=datetime.date.today)
