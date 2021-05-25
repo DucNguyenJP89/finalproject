@@ -4,13 +4,43 @@ from django.db import IntegrityError
 from django.http import JsonResponse, HttpRequest, HttpResponseRedirect
 from django.urls import reverse
 from django.shortcuts import render, HttpResponse, HttpResponseRedirect
+from django.core.exceptions import FieldError
+from django.views.decorators.csrf import csrf_exempt
 
-from .models import User, UserAccBook, AccBookItem
+import json
+
+from .models import *
+
 
 # Create your views here.
 
 def index(request):
     return render(request, "shareaccbook/index.html")
+
+@login_required(login_url='login')
+def createAccBook(request):
+    # create form
+    form = createAccBookForm()
+
+    # check request method
+    if request.method == 'POST':
+        form = createAccBookForm(request.POST)
+
+        if form.is_valid():
+            # get user
+            newForm = form.save(commit=False)
+            newForm.owner = request.user
+            newForm.save()
+            return HttpResponseRedirect(reverse("index"))
+        else:
+            message = "Something wrong. Please try again."
+            return render(request, "shareaccbook/createAccBook.html", {
+                'form': form,
+                'message': message
+                })
+    return render(request, "shareaccbook/createAccBook.html", {
+        "form": form
+    })
 
 def login_view(request):
     if request.method == "POST":
