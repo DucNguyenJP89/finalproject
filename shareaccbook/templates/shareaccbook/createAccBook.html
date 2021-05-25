@@ -4,7 +4,24 @@
 
 {% block body %}
 <div class="container">
+  <h2>Create new acc book</h2>
+
+  <form action="{% url 'createAccBook' %}" method="post">
   {% csrf_token %}
-  {{ form }}
+
+  <div class="mb-3">
+    {{ form.accbook_type }}
+  </div>
+
+  <div class="mb-3">
+    {{ form.accbook_name }}
+  </div>
+
+  <input class="form-control btn btn-primary" type="submit" />
+  </form>
+</div>
+
+<div class="container">
+  <p class="text-danger">{{ message }}</p>
 </div>
 {% endblock %}
