@@ -17,39 +17,30 @@ from .models import *
 def index(request):
     return render(request, "shareaccbook/index.html")
 
-@login_required
+@login_required(login_url='login')
 def createAccBook(request):
-    # check request method
-    if request.method == "GET":
-        form = createAccBookForm()
-        return render(request, "shareaccbook/createAccBook.html", {
-            "form": form
-        })
-    elif request.method == "POST":
-        # Get info of acc book
-        data = json.loads(request.body)
-        accbook_type = data.get('book_type')
-        accbook_name = data.get('book_name')
-        owner = User.objects.get(username=request.user)
+    # create form
+    form = createAccBookForm()
 
-        # try to create new acc book
-        try:
-            new_book = UserAccBook.objects.create(owner=owner, accbook_type=accbook_type, accbook_name=accbook_name)
-            new_book.save()
-        except UserAccBook.FieldError:
-            error = "'Account book already existed. Please try another name.'"
-            return JsonResponse({"error": error})
-        
-        return JsonResponse({
-            "message": "Account book created successfully.",
-            "data": {
-                "owner": owner,
-                "accbook_type": accbook_type,
-                "accbook_name": accbook_name
-            }
-            })
-    else:
-        return JsonResponse({"error": "Invalid request."}, status=400)
+    # check request method
+    if request.method == 'POST':
+        form = createAccBookForm(request.POST)
+
+        if form.is_valid():
+            # get user
+            newForm = form.save(commit=False)
+            newForm.owner = request.user
+            newForm.save()
+            return HttpResponseRedirect(reverse("index"))
+        else:
+            message = "Something wrong. Please try again."
+            return render(request, "shareaccbook/createAccBook.html", {
+                'form': form,
+                'message': message
+                })
+    return render(request, "shareaccbook/createAccBook.html", {
+        "form": form
+    })
 
 def login_view(request):
     if request.method == "POST":

@@ -9,7 +9,7 @@ urlpatterns = [
     path("logout", views.logout_view, name="logout"),
     path("register", views.register, name="register"),
 
-    # API routes: account book
+    # route: create acc book
     path("accbook/create", views.createAccBook, name="createAccBook"),
 
 ]
