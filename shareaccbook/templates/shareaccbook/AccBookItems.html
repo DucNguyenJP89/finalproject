@@ -1,0 +1,26 @@
+{% extends "shareaccbook/layout.html" %}
+
+{% block title %}Details{% endblock %}
+
+{% block body %}
+<div class="container">
+  <h2>{{ accBook.accbook_name }}</h2>
+</div>
+
+<div class="container">
+  {% if items|length_is:"0" %}
+    <p>No item yet.</p>
+  {% else %}
+    {% for item in items %}
+    <div class="container">
+      <p>{{ item.item_type }}</p>
+      <p>{{ item.item_price }}</p>
+    </div>
+    {% endfor %}
+  {% endif %}
+</div>
+
+<div class="container">
+  <p class="text-danger">{{ message }}</p>
+</div>
+{% endblock %}

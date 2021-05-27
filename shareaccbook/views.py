@@ -31,7 +31,17 @@ def createAccBook(request):
             newForm = form.save(commit=False)
             newForm.owner = request.user
             newForm.save()
-            return HttpResponseRedirect(reverse("index"))
+
+            #get created accbook
+            owner = User.objects.get(username=request.user)
+            accbook_type = form.cleaned_data['accbook_type']
+            accbook_name = form.cleaned_data['accbook_name']
+
+            userAccBook = UserAccBook.objects.get(owner=owner, accbook_type=accbook_type, accbook_name=accbook_name)
+
+            acc_id = userAccBook.id
+            
+            return HttpResponseRedirect(reverse("accBookView", args=[acc_id]))
         else:
             message = "Something wrong. Please try again."
             return render(request, "shareaccbook/createAccBook.html", {
@@ -41,6 +51,26 @@ def createAccBook(request):
     return render(request, "shareaccbook/createAccBook.html", {
         "form": form
     })
+
+@login_required(login_url="login")
+def accBookView(request, acc_id):
+    # get accbook with acc_id
+    try:
+        accBook = UserAccBook.objects.get(pk=acc_id)
+        if accBook.owner != request.user:
+            return render(request, "shareaccbook/AccBookItems.html", {
+                "message": "You are not allowed to view this accbook. Please contact the owner for permission."
+            })
+    except UserAccBook.DoesNotExist:
+        return render(request, "shareaccbook/AccBookItems.html", {
+            "message": "Account book not found."
+        })
+
+    # get items of accbook
+    items = AccBookItem.objects.filter(acc_book_id=acc_id)
+
+    return render(request, "shareaccbook/AccBookItems.html", { "accBook": accBook, "items": items})
+
 
 def login_view(request):
     if request.method == "POST":

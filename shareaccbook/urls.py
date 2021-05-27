@@ -11,5 +11,7 @@ urlpatterns = [
 
     # route: create acc book
     path("accbook/create", views.createAccBook, name="createAccBook"),
+    # route: acc book view
+    path("accbook/<int:acc_id>", views.accBookView, name="accBookView"),
 
 ]
