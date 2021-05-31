@@ -1,23 +1,20 @@
-{% extends "shareaccbook/layout.html" %}
+{% extends "shareaccbook/layout.html" %} 
 
-{% block title %}Create new book{% endblock %}
-
+{% block title %}Create new book{%endblock %} 
 {% block body %}
 <div class="container">
   <h2>Create new acc book</h2>
 
   <form action="{% url 'createAccBook' %}" method="post">
-  {% csrf_token %}
+    {% csrf_token %}
 
-  <div class="mb-3">
-    {{ form.accbook_type }}
-  </div>
+    <div class="mb-3">
+      {{ form.accbook_type }}
+    </div>
 
-  <div class="mb-3">
-    {{ form.accbook_name }}
-  </div>
+    <div class="mb-3">{{ form.accbook_name }}</div>
 
-  <input class="form-control btn btn-primary" type="submit" />
+    <input class="form-control btn btn-primary" type="submit" />
   </form>
 </div>
 
