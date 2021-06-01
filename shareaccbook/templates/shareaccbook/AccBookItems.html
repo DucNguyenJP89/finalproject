@@ -6,29 +6,42 @@
 <div class="container border rounded-3 my-3" id="accbookInfo">
   <h2 class="mt-2">{{ accBook.accbook_name }}</h2>
   <p>Owner: {{ accBook.owner }}</p>
+  <p>Shared Users: none</p>
   <p>Regist Date: {{ accBook.updated_on }}</p>
 
 </div>
 
 <div class="container border rounded-3 mb-3" id="newItem">
   <h4 class="mt-2">Add new expense</h2>
-  {% csrf_token %}
-  <div class="mb-3">
-    {{ form.regist_date }}
-  </div>
-  <div class="mb-3">
-    {{ form.expense_type }}
-  </div>
-  <div class="mb-3">
-    {{ form.item_type }}
-  </div>
-  <div class="input-group mb-3">
-    {{ form.item_price }}
-    <span class="input-group-text">VND</span>
-  </div>
-  <div class="mb-3">
-    {{ form.item_description }}
-  </div>
+  <form action="{% url 'accBookView' accBook.id %}" method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+      <div class="form-group">
+          <div class="input-group date" id="datetimepicker4" data-target-input="nearest">
+              {{ form.regist_date }}
+              <div class="input-group-append" data-target="#datetimepicker4" data-toggle="datetimepicker">
+                  <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+              </div>
+          </div>
+      </div>
+    </div>
+    <div class="mb-3">
+      {{ form.expense_type }}
+    </div>
+    <div class="mb-3">
+      {{ form.item_type }}
+    </div>
+    <div class="input-group mb-3">
+      {{ form.item_price }}
+      <span class="input-group-text">VND</span>
+    </div>
+    <div class="mb-3">
+      {{ form.item_description }}
+    </div>
+    <input class="form-control btn btn-primary" type="submit" />
+
+    <p class="text-danger">{{ form_message }}</p>
+    </form>
 </div> 
 
 <div class="container border rounded-3 mb-3" id="itemsList">
@@ -38,9 +51,10 @@
     <p>No item yet.</p>
   {% else %}
     {% for item in items %}
-    <div class="container">
-      <p>{{ item.item_type }}</p>
-      <p>{{ item.item_price }}</p>
+    <div class="container border rounded mb-3">
+      <p>Date: {{ item.regist_date }}</p>
+      <p>{{ item.get_item_type_display }}</p>
+      <p>{{ item.item_price }} VND</p>
     </div>
     {% endfor %}
   {% endif %}
@@ -49,4 +63,14 @@
 <div class="container mb-3">
   <p class="text-danger">{{ message }}</p>
 </div>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript">
+  $(function () {
+      $('#datetimepicker4').datetimepicker({
+          format: 'YYYY-MM-DD'
+      });
+  });
+</script>
 {% endblock %}
