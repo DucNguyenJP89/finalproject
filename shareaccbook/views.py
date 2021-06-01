@@ -69,7 +69,67 @@ def accBookView(request, acc_id):
     # get items of accbook
     items = AccBookItem.objects.filter(acc_book_id=acc_id)
 
-    return render(request, "shareaccbook/AccBookItems.html", { "accBook": accBook, "items": items})
+    # create form create new item
+    form = createNewItemForm()
+
+    if request.method == "POST":
+        form = createNewItemForm(request.POST)
+        if form.is_valid():
+            newItem = form.save(commit=False)
+            newItem.user_id = request.user
+            newItem.acc_book_id = accBook
+            newItem.save()
+            
+            return HttpResponseRedirect(reverse("accBookView", args=[acc_id]))
+        else:
+            return render(request, "shareaccbook/AccBookItems.html", {
+                "accBook": accBook,
+                "form": form,
+                "items": items,
+                "form_message": "Cannot create new item. Please try again."
+            })
+
+    return render(request, "shareaccbook/AccBookItems.html", { 
+        "accBook": accBook,
+        "form": form, 
+        "items": items
+        })
+
+@login_required(login_url='login')
+def createNewItem(request, acc_id):
+    # Only use with method post
+    if request.method != 'POST':
+        return render(request, "shareaccbook/index.html", {
+            "message": "Error occured. Please try again."
+        })
+    
+    # get accbook 
+    accBook = UserAccBook.objects.get(pk=acc_id)
+    if accBook is None:
+        return render(request, "shareaccbook/index.html", {
+            "message": "Error occured. Please try again."
+        })
+    
+    # create form with information from POST request
+    form = createNewItemForm(request.POST)
+
+    if form.is_valid():
+        newItem = form.save(commit=False)
+        newItem.user_id = request.user
+        newItem.save()
+        
+        return HttpResponseRedirect(reverse("accBookView", args=[acc_id]))
+    else:
+        initialForm = createNewItemForm()
+        # get items of accbook
+        items = AccBookItem.objects.filter(acc_book_id=acc_id)
+        return render(request, "shareaccbook/AccBookItems.html", {
+            "accBook": accBook,
+            "form": initialForm,
+            "items": items,
+            "form_message": "Cannot create new item. Please try again."
+        })
+
 
 
 def login_view(request):
