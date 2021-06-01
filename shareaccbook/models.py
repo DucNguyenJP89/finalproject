@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.forms import ModelForm, CharField
+from django.core.validators import MaxValueValidator
 
 import datetime
 
@@ -85,20 +86,20 @@ EXPENSE_TYPE = (
 class AccBookItem(models.Model):
     acc_book_id = models.ForeignKey("UserAccBook", on_delete=models.CASCADE, related_name="belonging_accbook")
     user_id = models.ForeignKey("User", on_delete=models.CASCADE)
-    regist_date = models.DateField(default=datetime.date.today)
+    regist_date = models.DateField()
     modified_date = models.DateField(auto_now=True)
     expense_type = models.IntegerField(choices=EXPENSE_TYPE, default=2)
     item_type = models.IntegerField(choices=ITEM_TYPE, blank=False)
     item_description = models.CharField(max_length=50)
-    item_price = models.DecimalField(max_digits=9, decimal_places=2)
+    item_price = models.PositiveIntegerField()
 
     class Meta:
         ordering = ['-regist_date']
     
     def __str__(self):
-        return f"New item: {self.item_type} created at {self.regist_date}."
+        return f"Accbook: {self.acc_book_id} - Spent {self.item_price} on {self.item_description} created at {self.regist_date}."
 
-class createNewItem(ModelForm):
+class createNewItemForm(ModelForm):
     class Meta:
         model = AccBookItem
         fields = ['regist_date', 'expense_type', 'item_type', 'item_price', 'item_description']
@@ -109,6 +110,7 @@ class createNewItem(ModelForm):
         self.fields['item_type'].widget.attrs.update({'class': 'form-select'})
         self.fields['item_price'].widget.attrs.update({'class': 'form-control', 'placeholder': 'How much?'})
         self.fields['item_description'].widget.attrs.update({'class': 'form-control', 'placeholder': 'More details (50 characters)'})
+        self.fields['regist_date'].widget.attrs.update({'class': 'form-control datetimepicker-input', 'data-target': '#datetimepicker4'})
 
 
 
